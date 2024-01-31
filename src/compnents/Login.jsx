@@ -1,15 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
-
-
+ 
 function Login() {
 
 
     const handleClick = async () => {
-        // const clientId = "2fc056cb71554459817f441534eb699f";
-        // const clientId = "db528b6b02e648a3943fa8ca7e809ac5";
-        const clientId = "fef91075562b4df49d4c506836c7b65c";
-        const redirect_uri = "http://localhost:3000/";
+
+        const clientId = process.env.REACT_APP_SPOTIFI_CLIENT_ID;
+
+        // This change when you
+        const redirect_uri = process.env.REACT_APP_SPOTIFI_APP_URI;
+
         const api_uri = "https://accounts.spotify.com/authorize";
         const scope = [
             "user-read-private",
@@ -26,7 +27,7 @@ function Login() {
     };
 
 
-    
+
     return (
         <Container>
             <div className="login">
