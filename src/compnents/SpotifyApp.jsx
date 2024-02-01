@@ -11,12 +11,13 @@ import Search from './Search';
 import Home from './Home';
 import { UseStateProvider } from '../utilities/StateProvider'
 import Artists from './Artists';
+import Progressbar from './Progressbar.jsx';
 
 function SpotifyApp() {
 
-  const [{ token }, dispatch] = UseStateProvider();
+  const [{ token, selectedArtistBackgroundColor }, dispatch] = UseStateProvider();
 
-  const [navBackground, setNavBackground] = useState(false);
+  const [navbackground, setNavBackground] = useState(false);
   const [headerBackground, setHeaderBackground] = useState(false);
   const bodyRef = useRef();
 
@@ -66,13 +67,22 @@ function SpotifyApp() {
 
 
   }, [token, dispatch])
+
+
+  // Assuming --gradient-color1 is a CSS variable
+  const bodycolor = selectedArtistBackgroundColor;
+
+ 
+
+
   return (
-    <Container>
+    <Container bodycolor={bodycolor} >
+      <Progressbar />
       <div className="spotify__body">
         <Sidebar />
 
-        <div className="body" ref={bodyRef} onScroll={bodyScrolled}>
-          <Navbar navBackground={navBackground} />
+        <div className="body" ref={bodyRef} onScroll={bodyScrolled} >
+          <Navbar navbackground={navbackground} navbarcolor={bodycolor} />
 
           <div className="body__content">
             <Routes>
@@ -101,24 +111,24 @@ background-color:white;
   max-height: 100vh;
   overflow: hidden;
   display: grid;
-  grid-template-rows:88vh 12vh ;
+  grid-template-rows:1vh 87vh 12vh;
   background:black;
+ 
 
 .spotify__body{
    height: 100%;
   width: 100%;
   display: grid;
-  grid-template-columns:15vw 85vw;
+  grid-template-columns:15vw 84vw;
   background-color: black;
-}
+ }
 .body{
-  height: 100%;
+   height: 100%;
     width: 100%;
     border-top: 10px solid black;
     overflow: auto;
     border-radius: 16px;
-    background: linear-gradient(transparent, rgba(0, 0, 0, 1));
-    background-color: rgb(91, 87, 115);
+    background: linear-gradient(${props => props.bodycolor}, rgb(17 17 17));
 
  /* Scrollbar */
 &::-webkit-scrollbar {

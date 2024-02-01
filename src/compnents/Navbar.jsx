@@ -7,13 +7,15 @@ import { IoIosSearch } from "react-icons/io";
 import { RxAvatar } from "react-icons/rx";
 
 
-function Navbar({ navBackground }) {
+function Navbar({ navbackground, navbarcolor }) {
     const [{ userinfo }] = UseStateProvider();
     let location = useLocation();
 
+      const navbackgroundcolor = navbarcolor;
+      console.log(navbackgroundcolor )
 
     return (
-        <Container backgroundstate={navBackground.toString()} >
+        <Container navbackgroundcolor={navbackgroundcolor}  backgroundstate={navbackground.toString()} >
             {location.pathname === '/search' ?
                 <div className="header__left">
                     <IoIosSearch className="SearchIcon" />
@@ -44,11 +46,10 @@ const Container = styled.div`
     position: sticky;
     height: 35px;
      top: 0;
-     margin-bottom: 3rem;
+     /* margin-bottom: 3rem; */
      transition: 500ms ease-in;
-     background-color: ${({ backgroundstate }) =>
-        backgroundstate === "true" ? "#000000" : "none"
-    };
+     background-color: ${({ backgroundstate, navbackgroundcolor }) => backgroundstate === "true" ? navbackgroundcolor : "none"};
+
  
 
 .header__right {

@@ -11,26 +11,19 @@ import PlayListComponent from './PlayListComponent';
 
 function Sidebar() {
     const [spotifiIcon, setspotifiIcon] = useState(true)
+    const [bodyTitle, setbodyTitle] = useState(null);
     let location = useLocation();
 
-    if (location.pathname === '/') {
-        document.title = ("Spotifi-Clone - Home")
+    const titlebarRouteset = (route) => {
+        setbodyTitle(route)
     }
-    if (location.pathname === '/search') {
-        document.title = ("Spotifi-Clone - Search")
+
+    if (bodyTitle) {
+        document.title = `Spotifi- ${bodyTitle}`;
+
     }
-    if (location.pathname === '/playlist') {
-        document.title = ("Spotifi-Clone - Playlist")
-    }
-    if (location.pathname === '/artists') {
-        document.title = ("Spotifi-Clone - Artists")
-    }
-    if (location.pathname === '/library') {
-        document.title = ("Spotifi-Clone - Library")
-    }
-    if (location.pathname === '/') {
-        document.title = ("Spotifi-Clone - Home")
-    }
+
+
     function getData(data) {
         setspotifiIcon(data)
     }
@@ -53,16 +46,16 @@ function Sidebar() {
                 </div>
                 <ul>
                     <Tooltip text={spotifiIcon ? undefined : "Home"} customTextStyle={spotifiIcon ? stylecssOpacity : stylecss}>
-                        <li className='listoficons'><Link to="/" className={`listofItems ${location.pathname === '/' ? "active" : ""}`}  ><IoMdHome /><span>Home</span></Link></li>
+                        <li className='listoficons' onClick={() => titlebarRouteset('Home')} ><Link to="/"  style={{ cursor: 'no-drop' }} className={`listofItems ${location.pathname === '/' ? "active" : ""}`}  ><IoMdHome /><span>Home</span></Link></li>
                     </Tooltip>
                     <Tooltip text={spotifiIcon ? undefined : "Search"} customTextStyle={spotifiIcon ? stylecssOpacity : stylecss}>
-                        <li className='listoficons'><Link to="/search " style={{ cursor: 'no-drop' }} className={`listofItems ${location.pathname === '/search' ? "active" : ""}`}  ><IoIosSearch /><span>Search</span></Link></li>
+                        <li className='listoficons' onClick={() => titlebarRouteset('Search')} ><Link to="/search " style={{ cursor: 'no-drop' }} className={`listofItems ${location.pathname === '/search' ? "active" : ""}`}  ><IoIosSearch /><span>Search</span></Link></li>
                     </Tooltip>
-                    <Tooltip text={spotifiIcon ? undefined : "Playlist"}customTextStyle={spotifiIcon ? stylecssOpacity : stylecss}>
-                        <li className='listoficons'><Link to="/playlist " className={`listofItems ${location.pathname === '/playlist' ? "active" : ""}`}  ><PiPlaylistFill /><span>Playlist</span></Link></li>
+                    <Tooltip text={spotifiIcon ? undefined : "Playlist"} customTextStyle={spotifiIcon ? stylecssOpacity : stylecss}>
+                        <li className='listoficons' onClick={() => titlebarRouteset('Playlist')} ><Link to="/playlist " className={`listofItems ${location.pathname === '/playlist' ? "active" : ""}`}  ><PiPlaylistFill /><span>Playlist</span></Link></li>
                     </Tooltip>
                     <Tooltip text={spotifiIcon ? undefined : "Artists"} customTextStyle={spotifiIcon ? stylecssOpacity : stylecss}>
-                        <li className='listoficons'><Link to="/artists " className={`listofItems ${location.pathname === '/artists' ? "active" : ""}`}  ><PiMicrophoneStageFill /><span>Artists</span></Link></li>
+                        <li className='listoficons' onClick={() => titlebarRouteset('Artists')} ><Link to="/artists " className={`listofItems ${location.pathname === '/artists' ? "active" : ""}`}  ><PiMicrophoneStageFill /><span>Artists</span></Link></li>
                     </Tooltip>
                 </ul>
             </div>

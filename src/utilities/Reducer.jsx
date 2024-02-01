@@ -12,12 +12,18 @@ export const initialState = {
     artistPlaylist: null,
     artistDetails: null,
     tokenValidation:false,
+    selectedArtistBackgroundColor:"var(--gradient-color0)",
  }
 const reducer = (state, action) => {
     switch (action.type) {
 
         
          
+        case reducerCases.SET_ARTIST_UNIQUE_COLOR:
+            return {
+                ...state,
+                selectedArtistBackgroundColor: action.selectedArtistBackgroundColor,
+            }
         case reducerCases.SET_TOKEN_VALIDATION:
             return {
                 ...state,

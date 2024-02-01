@@ -13,6 +13,7 @@ function Footer() {
     )
 }
 const Container = styled.div`
+   width: -webkit-fill-available; 
    color: white;
    background-color: black;
    display: flex;

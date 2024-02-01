@@ -8,81 +8,170 @@ import { MdTimer } from "react-icons/md";
 
 
 
+
 function Playlist({ headerBackground }) {
     const [{ token, selectedPlaylistId, selectedPlaylist }, dispatch] = UseStateProvider();
     useEffect(() => {
         const getInitialPlaylist = async () => {
+            try {
 
+                // Get the progress bar element
+                let progress = document.querySelector('.progress');
+                let bodyBlur = document.querySelector('.body');
 
-            const response = await axios.get(
-                `https://api.spotify.com/v1/playlists/${selectedPlaylistId}`,
-                {
-                    headers: {
-                        Authorization: 'Bearer ' + token,
-                        'Content-Type': 'application/json',
-                    },
+                // Set initial progress
+                bodyBlur.style.display = "none";
+                progress.style.backgroundColor = "#01ff01";
+                progress.style.transition = "2s";
+                progress.style.width = "0%";
+
+                const response = await axios.get(
+                    `https://api.spotify.com/v1/playlists/${selectedPlaylistId}`,
+                    {
+
+                        headers: {
+                            Authorization: 'Bearer ' + token,
+                            'Content-Type': 'application/json',
+                        },
+                    }
+                )
+
+                progress.style.width = "80%";
+                // Check the response status
+                if (response.status === 200) {
+                    // Update progress to completion
+                    progress.style.width = "100%";
+
+                } else {
+                    // Handle unsuccessful response
+                    progress.style.backgroundColor = "transparent";
+                    progress.style.transition = "0s";
+                    progress.style.width = "0%";
                 }
-            )
-            const selectedPlaylist = {
-                id: response.data.id,
-                name: response.data.name,
-                description: response.data.description.startsWith("<a")
-                    ? ""
-                    : response.data.description,
-                image: response.data.images[0].url,
-                tracks: response.data.tracks.items.map(({ track }) => ({
-                    id: track.id,
-                    name: track.name,
-                    artists: track.artists.map((artist) => artist.name).join(", "),
-                    image: track.album.images[2].url,
-                    duration: track.duration_ms,
-                    album: track.album.name,
-                    context_uri: track.album.uri,
-                    track_number: track.track_number,
-                })),
 
-            };
+                // after complete Api response.............
+                setTimeout(() => {
+                    progress.style.backgroundColor = "black";
+                    bodyBlur.style.display = "block";
 
-            // console.log(selectedPlaylist)
-            dispatch({
-                type: reducerCases.SET_PLALIST,
-                selectedPlaylist
-            })
+                }, 1000);
+                setTimeout(() => {
+                    progress.style.width = "0%";
+                }, 2000);
 
+                const selectedPlaylist = {
+                    id: response.data.id,
+                    name: response.data.name,
+                    description: response.data.description.startsWith("<a")
+                        ? ""
+                        : response.data.description,
+                    image: response.data.images[0].url,
+                    tracks: response.data.tracks.items.map(({ track }) => ({
+                        id: track.id,
+                        name: track.name,
+                        artists: track.artists.map((artist) => artist.name).join(", "),
+                        image: track.album.images[2].url,
+                        duration: track.duration_ms,
+                        album: track.album.name,
+                        context_uri: track.album.uri,
+                        track_number: track.track_number,
+                    })),
+
+                };
+                // console.log(selectedPlaylist)
+                dispatch({
+                    type: reducerCases.SET_PLALIST,
+                    selectedPlaylist
+                })
+
+
+            } catch (error) {
+                if (error.response && error.response.status === 401) {
+                    // Handle 401 error here
+                    sessionStorage.removeItem('SpotifiToken');
+                    console.log("Your Session is out!");
+                    alert("Your Session is out!");
+                    window.location.reload();
+                } else {
+                    console.error("Error fetching initial playlist:", error);
+                }
+            }
         }
         getInitialPlaylist()
     }, [token, dispatch, selectedPlaylistId])
     // ------------------------------------------------
     const playTrack = async (id, name, artists, image, duration, context_uri, track_number) => {
+        try {
+            // Get the progress bar element
+            let progress = document.querySelector('.progress');
 
-        const response = await axios.put(
-            `https://api.spotify.com/v1/me/player/play`,
-            {
-                context_uri,
-                offset: {
-                    position: track_number - 1,
+            // Set initial progress
+            progress.style.backgroundColor = "#01ff01";
+            progress.style.transition = "2s";
+            progress.style.width = "0%";
+
+            const response = await axios.put(
+                `https://api.spotify.com/v1/me/player/play`,
+                {
+                    context_uri,
+                    offset: {
+                        position: track_number - 1,
+                    },
+                    position_ms: 0,
                 },
-                position_ms: 0,
-            },
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: "Bearer " + token,
-                },
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: "Bearer " + token,
+                    },
+                }
+            );
+
+            progress.style.width = "80%";
+            if (response.status === 204) {
+                // Update progress to completion
+                console.log('status okay...')
+                progress.style.width = "100%";
+
+                const currentPlaying = {
+                    id,
+                    name,
+                    artists,
+                    image,
+                    duration,
+                };
+                dispatch({ type: reducerCases.SET_PLAYING, currentPlaying });
+                dispatch({ type: reducerCases.SET_PLAYER_STATE, playerState: true });
+            } else {
+
+                dispatch({ type: reducerCases.SET_PLAYER_STATE, playerState: false });
+
+                // Handle unsuccessful response
+                progress.style.backgroundColor = "transparent";
+                progress.style.transition = "0s";
+                progress.style.width = "0%";
             }
-        );
-        if (response.status === 204) {
-            const currentPlaying = {
-                id,
-                name,
-                artists,
-                image,
-                duration,
-            };
-            dispatch({ type: reducerCases.SET_PLAYING, currentPlaying });
-            dispatch({ type: reducerCases.SET_PLAYER_STATE, playerState: true });
-        } else {
-            dispatch({ type: reducerCases.SET_PLAYER_STATE, playerState: true });
+
+            // after complete Api response.............
+            setTimeout(() => {
+                progress.style.backgroundColor = "black";
+
+            }, 1000);
+            setTimeout(() => {
+                progress.style.width = "0%";
+            }, 2000);
+
+
+        } catch (error) {
+            if (error.response && error.response.status === 401) {
+                // Handle 401 error here
+                sessionStorage.removeItem('SpotifiToken');
+                console.log("Your Session is out!");
+                alert("Your Session is out!");
+                window.location.reload();
+            } else {
+                console.error("Error fetching playlist:", error);
+            }
         }
     };
 
@@ -178,18 +267,18 @@ function Playlist({ headerBackground }) {
     )
 }
 const Container = styled.div`
- 
-.playlist {
-    margin: 0 2rem;
+ .playlist {
+     padding:0rem 3rem 4rem  4rem;
     display: flex;
     align-items: center;
-    gap: 2rem;
-    margin-bottom: 4rem;
+    gap: 5rem;
+     background-color: transparent;
+
  .image {
       img {
         height: 15rem;
-        box-shadow: rgba(0, 0, 0, 0.25) 0px 25px 50px -12px;
-      }
+        box-shadow: rgb(0 0 0 / 43%) 0px 36px 45px 24px;
+          }
     }
     .details {
       display: flex;
@@ -204,9 +293,9 @@ const Container = styled.div`
   }
    /* ..................This is list Style............ */ 
   .list {
-    background: #00000047;
-    padding: 0 0 15rem 0;
+     padding: 0 0 15rem 0;
     border-radius: 5px;
+    background: linear-gradient(to top, #191919 60%, #23202029 100%);
 
        /* ..................This is header of list Style............ */ 
     .header-row {
@@ -219,7 +308,7 @@ const Container = styled.div`
       transition: 500ms ease-in;
       border-radius: 5px 5px 0 0;
       background-color: ${({ backgroundstate }) =>
-        backgroundstate === "true" ? "#1b1616" : "none"};
+        backgroundstate === "true" ? "#2a2a2a" : "none"};
     }
    
       /* ..................This is track of list Style............ */ 
@@ -234,8 +323,8 @@ const Container = styled.div`
         display: grid;
         grid-template-columns: 0.3fr 3.1fr 2fr 0.1fr;
         &:hover {
-          background-color: rgba(0, 0, 0, 0.7);
-          border-radius: 5px;
+            background-color: rgb(83 82 82 / 88%);
+            border-radius: 5px;
         }
         .col {
           display: flex;

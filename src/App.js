@@ -20,13 +20,12 @@ function App() {
         const token = hash.substring(1).split("&")[0].split("=")[1];
         sessionStorage.setItem("SpotifiToken", token); // Set the item with a key
         dispatch({ type: reducerCases.SET_TOKEN, token });
-        navigate('/artists');
+        navigate('/playlist');
 
       } else {
         const storedToken = sessionStorage.getItem("SpotifiToken"); // Retrieve the item with a key
         dispatch({ type: reducerCases.SET_TOKEN, token: storedToken });
-        navigate('/artists');
-      }
+       }
     }
     handleLogin(hash);
   }, [token, dispatch, navigate]);

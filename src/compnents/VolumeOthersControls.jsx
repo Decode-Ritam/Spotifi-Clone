@@ -12,7 +12,7 @@ function VolumeOthersControls() {
 
   const VolumeControls = useCallback(async (newVolumePercent) => {
 
-    console.log(newVolumePercent);
+    // console.log(newVolumePercent);
     try {
       setVolume(newVolumePercent);
       if (newVolumePercent === 0) {
@@ -40,13 +40,7 @@ function VolumeOthersControls() {
 
 
   useEffect(() => {
-
-    const toggleMute = () => {
-      setVolumeMuted((prevMuted) => !prevMuted);
-      const newVolumePercent = volumeMuted ? 50 : 0;
-      VolumeControls(newVolumePercent);
-      console.log("Toggle volume run...........");
-    };
+ 
     const increaseVolume = () => {
       if (volume < 100) {
         const newVolumePercent = volume + 10; // Increase by 10, adjust as needed
@@ -87,20 +81,27 @@ function VolumeOthersControls() {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [volumeMuted, volume, VolumeControls]);
+  });
+ 
+  const toggleMute = () => {
+    setVolumeMuted((prevMuted) => !prevMuted);
+    const newVolumePercent = volumeMuted ? 50 : 0;
+    VolumeControls(newVolumePercent);
+ 
+  };
 
   return (
     <Container>
-      <Tooltip text={volumeMuted ? 'Un-mute (m)' : 'Mute (m)'}>
+      <Tooltip text={volumeMuted ? 'Click / Un-mute (m)' : 'Click / Mute (m)'}>
         {volumeMuted ? (
-          <HiMiniSpeakerXMark title='un-mute (m)' />
+          <HiMiniSpeakerXMark onClick={()=> toggleMute()}   />
         ) : (
-          <HiMiniSpeakerWave title='mute (m)' />
+          <HiMiniSpeakerWave onClick={()=> toggleMute()}   />
         )
         }
       </Tooltip>
       <Tooltip text="Change Volume ( arrowup / arrowdown )">
-        <input type="range" min={0} max={100} value={volumeMuted ? 0 : volume} onMouseUp={(e) => VolumeControls(parseInt(e.target.value))} />
+        <input type="range" min={0} max={100} value={volumeMuted ? 0 : volume} onChange={(e) => VolumeControls(parseInt(e.target.value))} />
       </Tooltip>
     </Container >
   );

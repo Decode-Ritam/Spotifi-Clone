@@ -65,7 +65,14 @@ function PlayerControls() {
                     }
                 );
 
-
+                if (response.status === 401) {
+                    sessionStorage.removeItem('SpotifiToken')
+                    dispatch({
+                        type: reducerCases.SET_TOKEN,
+                        token: false,
+                    });
+                    return;
+                }
 
                 if (response.data !== "") {
                     const currentPlaying = {
@@ -170,7 +177,7 @@ function PlayerControls() {
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
         };
-    }, [changeState, PlaybackShuffle, ShuffleState, changeTrack,]);
+    }, [changeState, PlaybackShuffle, ShuffleState, changeTrack]);
 
      return (
         <Container>

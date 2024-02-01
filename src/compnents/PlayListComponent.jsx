@@ -1,63 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, {useState } from 'react';
 import '../index.css';
-import { UseStateProvider } from '../utilities/StateProvider';
-import axios from 'axios';
-import { reducerCases } from '../utilities/Constant';
-import styled from 'styled-components'
+   import styled from 'styled-components'
 import ArtistSongs from './ArtistSongs';
 import { useLocation } from "react-router-dom";
 import { IoLibrarySharp } from "react-icons/io5";
+import PlaylistSongs from './PlaylistSongs';
 
 
 
 function PlayListComponent(props) {
 
-    const [{ token, playlists }, dispatch] = UseStateProvider();
-    const [isCollapsed, setIsCollapsed] = useState(false);
-
-    useEffect(() => {
-        const getPlaylistData = async () => {
-            try {
-                const response = await axios.get(
-                    'https://api.spotify.com/v1/me/playlists',
-                    {
-                        headers: {
-                            Authorization: 'Bearer ' + token,
-                            'Content-Type': 'application/json',
-                        },
-                    }
-                )
-                const { items } = response.data;
-                const playlists = items.map(({ name, id, images, owner }) => {
-                    const listImages = images[0].url;
-                    const createBy = owner.display_name;
-
-                    return { name, id, listImages, createBy }
-                })
-
-
-                dispatch({
-                    type: reducerCases.SET_PLALISTS,
-                    playlists
-                })
-            } catch (error) {
-
-
-                // For other errors, log to console
-                console.error('Error fetching playlists:', error);
-
-            };
-        };
-
-        getPlaylistData();
-
-    }, [token, dispatch]);
-
-    const changeCurrentPlaylist = (selectedPlaylistId) => {
-        dispatch({ type: reducerCases.SET_PLAYLIST_ID, selectedPlaylistId });
-        // console.log(selectedPlaylistId)
-    };
-
+     const [isCollapsed, setIsCollapsed] = useState(false);
+ 
     let location = useLocation();
     const currentPath = location.pathname;
     const defaultText = 'Top';
@@ -70,9 +24,8 @@ function PlayListComponent(props) {
     };
 
 
-
     // useEffect to update isCollapsed on window resize
-    const toggleLibrary = (isSmallScreen) => {
+    const toggleLibrary = () => {
 
         console.log("Library collapse successful...");
 
@@ -132,50 +85,36 @@ function PlayListComponent(props) {
         props.getData(isCollapsed)
     };
 
-
-
     const displayText = pathNameMappings[currentPath] || defaultText;
 
-    return <Container>
-        <div className='library_text' id='toggle__library' onClick={toggleLibrary} title={!isCollapsed ? "Collapse Your Library" : "Expand Your Library"}   ><IoLibrarySharp /><span> Your Library</span></div>
-        <hr />
-        {!isCollapsed ?
-            (<h3 className='listheadline'>Your {displayText} List</h3>)
-            : (<h3 className='listheadline'>List</h3>
-            )
-        }
+    return (
+        <Container>
+            <div className='library_text' id='toggle__library' onClick={toggleLibrary} title={!isCollapsed ? "Collapse Your Library" : "Expand Your Library"}   ><IoLibrarySharp /><span> Your Library</span></div>
+            <hr />
+            {!isCollapsed ?
+                (<h3 className='listheadline'>Your {displayText} List</h3>)
+                : (<h3 className='listheadline'>List</h3>
+                )
+            }
 
-        <ul id='listItems' className='libraryList__items'>
-            {location.pathname === "/artists" && <ArtistSongs />}
-            {location.pathname === "/playlist" && (
-                playlists.map(({ name, id, listImages, createBy }) => {
-                    return (
-                        <li className='playlist_list' key={id} onClick={() => changeCurrentPlaylist(id)} title={name}>
-                            <img src={listImages} alt={name} />
-                            <p className='playlist_content'>
-                                <span className='name'>{name}</span>
-                                <span className='Createby'> {createBy}</span>
-                            </p>
-                        </li>
+            <ul id='listItems' className='libraryList__items'>
+                {location.pathname === "/artists" && <ArtistSongs />}
+                {location.pathname === "/playlist" && <PlaylistSongs /> }
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
+                <br />
 
-                    )
-                })
-            )}
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
+            </ul>
 
+        </Container>
+    ) 
 
-
-        </ul>
-
-    </Container>;
 }
 
 const Container = styled.div`
@@ -186,6 +125,7 @@ background: #2a2a2a;
   border: 10px solid black;
     border-radius: 19px;
     border-top:none;
+    
   .library_text{
     display: flex;
     align-items: center;
@@ -219,7 +159,7 @@ hr{
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    padding: 1.1rem;
+    padding: 0.8rem;
     height: 55vh;
      max-height: 100%;
     overflow: auto;
@@ -235,37 +175,7 @@ hr{
         }
       }
     }
-    li{
-        display: flex;
-        gap: 1rem;
-        cursor: pointer;
-        transition: 200ms color ease-in;
-        color: gray;
-        align-items: center;
-        /* overflow: hidden; */
-        img{
-            height: 40px;
-            width: 40px;
-            border-radius: 5px;
-        }
-        p{
-            flex-direction: column;
-            display: flex;
-            gap: 3px;
-            overflow: hidden;
-            .Createby{
-                font-size: 12px;
-            }
-          span{
-             overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;  
-          }
-          }
-        &:hover{
-            color: white;
-        }
-    }
+
 }
 /* This is Responsive Style */
 @media only screen and (max-width:1170px){
@@ -290,13 +200,8 @@ hr{
     justify-content: center;
  }
    
+//..................
 
-.playlist_list{
-    justify-content: center;
-    .playlist_content{
-    display: none;
- }
- }
 .libraryList__items{
     li{
        gap: 0;
