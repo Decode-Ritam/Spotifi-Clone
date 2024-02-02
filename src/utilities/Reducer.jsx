@@ -2,6 +2,7 @@ import { reducerCases } from "./Constant";
 
 export const initialState = {
     token:false,
+    deviceStatus:false,
     playlists: [],
     userinfo: null,
     selectedPlaylist: null,
@@ -19,6 +20,11 @@ const reducer = (state, action) => {
 
         
          
+        case reducerCases.SET_DEVICE_STATUS:
+            return {
+                ...state,
+                deviceStatus: action.deviceStatus,
+            }
         case reducerCases.SET_ARTIST_UNIQUE_COLOR:
             return {
                 ...state,

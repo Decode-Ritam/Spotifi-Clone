@@ -4,23 +4,26 @@ import { UseStateProvider } from '../utilities/StateProvider'
 import styled from 'styled-components';
 import { reducerCases } from '../utilities/Constant';
 import { MdTimer } from "react-icons/md";
- 
+
 
 
 
 function Artists({ headerBackground }) {
-     const [{ token, selectedArtistId, artistDetails, artistPlaylist }, dispatch] = UseStateProvider();
+    const [{ token, selectedArtistId, artistDetails, artistPlaylist }, dispatch] = UseStateProvider();
     useEffect(() => {
         const fetchArtistPlaylist = async () => {
             try {
                 // Get the progress bar element
                 let progress = document.querySelector('.progress');
                 let bodyBlur = document.querySelector('.body');
+
                 // Set initial progress
                 bodyBlur.style.display = "none";
+                progress.style.width = "0%";
                 progress.style.backgroundColor = "#01ff01";
                 progress.style.transition = "2s";
                 progress.style.width = "0%";
+
 
                 const id = selectedArtistId;
                 // This Request for artist Information.......................................
@@ -44,7 +47,6 @@ function Artists({ headerBackground }) {
                     followers: artistData.data.followers.total,
 
                 }
-                // console.log(artistDetails)
 
                 // Dispatch the artistDetails data to the state
                 dispatch({
@@ -62,10 +64,16 @@ function Artists({ headerBackground }) {
                         },
                     }
                 );
- 
+
                 if (artistData.status === 200) {
                     // Update progress to completion
                     progress.style.width = "100%";
+
+                    // Device status update to reducerCases..
+                    dispatch({
+                        type: reducerCases.SET_DEVICE_STATUS,
+                        deviceStatus: true
+                    })
 
                 } else {
                     // Handle unsuccessful response
@@ -76,12 +84,11 @@ function Artists({ headerBackground }) {
 
                 // after complete Api response.............
                 setTimeout(() => {
+                    progress.style.transition = "0s";
                     progress.style.backgroundColor = "black";
                     bodyBlur.style.display = "block";
-
-                }, 1000);
-                setTimeout(() => {
                     progress.style.width = "0%";
+
                 }, 2000);
 
 
@@ -108,12 +115,20 @@ function Artists({ headerBackground }) {
                 if (error.response && error.response.status === 401) {
                     // Handle 401 error here
                     sessionStorage.removeItem('SpotifiToken');
-                    console.log("Your Session is out!");
                     alert("Your Session is out!");
                     window.location.reload();
-                  } else {
-                     console.error('Error fetching artist info:', error);
-                  }
+                } else if (error.response && error.response.status === 404) {
+                    // Device status update to reducerCases..
+                    dispatch({
+                        type: reducerCases.SET_DEVICE_STATUS,
+                        deviceStatus: false
+                    })
+
+                    // Handle 404 error here
+                    alert(`Play Request Failed: No Active Spotify Account Found!`);
+                } else {
+                    console.error('Error fetching artist info:', error);
+                }
             }
         };
 
@@ -125,7 +140,9 @@ function Artists({ headerBackground }) {
         try {
             // Get the progress bar element
             let progress = document.querySelector('.progress');
+
             // Set initial progress
+            progress.style.width = "0%";
             progress.style.backgroundColor = "#01ff01";
             progress.style.transition = "2s";
             progress.style.width = "0%";
@@ -148,10 +165,15 @@ function Artists({ headerBackground }) {
             );
 
             progress.style.width = "80%";
- 
+
             if (response.status === 204) {
                 // Update progress to completion
-                 progress.style.width = "100%";
+                progress.style.width = "100%";
+                // Device status update to reducerCases..
+                dispatch({
+                    type: reducerCases.SET_DEVICE_STATUS,
+                    deviceStatus: true
+                })
 
                 const currentPlaying = {
                     id,
@@ -172,11 +194,10 @@ function Artists({ headerBackground }) {
             }
             // after complete Api response.............
             setTimeout(() => {
+                progress.style.transition = "0s";
                 progress.style.backgroundColor = "black";
-
-            }, 1000);
-            setTimeout(() => {
                 progress.style.width = "0%";
+
             }, 2000);
 
 
@@ -184,12 +205,21 @@ function Artists({ headerBackground }) {
             if (error.response && error.response.status === 401) {
                 // Handle 401 error here
                 sessionStorage.removeItem('SpotifiToken');
-                console.log("Your Session is out!");
                 alert("Your Session is out!");
                 window.location.reload();
-              } else {
-                 console.error('Error fetching artist info:', error);
-              }        }
+            } else if (error.response && error.response.status === 404) {
+                // Device status update to reducerCases..
+                dispatch({
+                    type: reducerCases.SET_DEVICE_STATUS,
+                    deviceStatus: false
+                })
+
+                // Handle 404 error here
+                alert(`Play Request Failed: No Active Spotify Account Found!`);
+            } else {
+                console.error('Error fetching artist info:', error);
+            }
+        }
 
     };
 
@@ -200,7 +230,6 @@ function Artists({ headerBackground }) {
         var seconds = ((ms % 60000) / 1000).toFixed(0);
         return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
     };
-    // console.log(artistPlaylist)
     return (
         <Container className='artist' backgroundstate={headerBackground.toString()}>
             {artistPlaylist && (

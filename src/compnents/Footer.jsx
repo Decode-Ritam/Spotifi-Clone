@@ -4,6 +4,7 @@ import CurrentTrack from './CurrentTrack';
 import PlayerControls from './PlayerControls';
 import VolumeOthersControls from './VolumeOthersControls';
 function Footer() {
+    
     return (
         <Container>
             <CurrentTrack />
@@ -13,7 +14,7 @@ function Footer() {
     )
 }
 const Container = styled.div`
-   width: -webkit-fill-available; 
+   height: -webkit-fill-available; 
    color: white;
    background-color: black;
    display: flex;

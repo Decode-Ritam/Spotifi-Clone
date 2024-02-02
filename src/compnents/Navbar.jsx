@@ -12,8 +12,7 @@ function Navbar({ navbackground, navbarcolor }) {
     let location = useLocation();
 
       const navbackgroundcolor = navbarcolor;
-      console.log(navbackgroundcolor )
-
+ 
     return (
         <Container navbackgroundcolor={navbackgroundcolor}  backgroundstate={navbackground.toString()} >
             {location.pathname === '/search' ?

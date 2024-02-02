@@ -4,11 +4,81 @@ import axios from 'axios';
 import styled from 'styled-components';
 import { UseStateProvider } from '../utilities/StateProvider';
 import { HiMiniSpeakerXMark, HiMiniSpeakerWave } from "react-icons/hi2";
+import { PiDevicesBold } from "react-icons/pi";
+import { reducerCases } from '../utilities/Constant';
 
 function VolumeOthersControls() {
-  const [{ token }] = UseStateProvider();
+  const [{ token, deviceStatus }, dispatch] = UseStateProvider();
   const [volumeMuted, setVolumeMuted] = useState(false);
   const [volume, setVolume] = useState(50);
+
+
+  useEffect(() => {
+
+    const gaetCurrentDevice = async () => {
+      try {
+        const response = await axios.get(
+          "https://api.spotify.com/v1/me/player/devices",
+          {
+            headers: {
+              Authorization: 'Bearer ' + token,
+              "Content-Type": "application/json",
+
+            }
+          }
+        )
+         if (!response.data.devices[0]) {
+          dispatch({
+            type: reducerCases.SET_DEVICE_STATUS,
+            deviceStatus: false
+          })
+          alert(`No Active Spotify Account Found!.. Activate your original Spotify..`)
+        }
+
+        if (response.data.devices[0]) {
+          const deviceData = response.data.devices[0]
+          const ActiveDevice = {
+            deviceId: deviceData.id,
+            deviceActive: deviceData.is_active,
+            responseRestricted: deviceData.is_restricted,
+            diviceName: deviceData.name,
+            diviceType: deviceData.type,
+            volumePresent: deviceData.volume_percent,
+            supportsVolume: deviceData.supports_volume,
+          }
+          if (ActiveDevice.deviceActive) {
+            dispatch({
+              type: reducerCases.SET_DEVICE_STATUS,
+              deviceStatus: true
+            })
+            alert(`Active device found.. Name: ${ActiveDevice.diviceType} , ${ActiveDevice.diviceName}`)
+          }
+          if (!ActiveDevice.deviceActive) {
+            dispatch({
+              type: reducerCases.SET_DEVICE_STATUS,
+              deviceStatus: false
+            })
+            alert(`No Active Spotify Account Found!.. Before play activate your original Spotify..`)
+          }
+        }
+
+      } catch (error) {
+        if (error.response && error.response.status === 401) {
+          // Handle 401 error here
+          sessionStorage.removeItem('SpotifiToken');
+          alert("Your Session is out!");
+          window.location.reload();
+        } else {
+          console.error('Error fetching:', error);
+        }
+      }
+    }
+    setTimeout(() => {
+      gaetCurrentDevice()
+    }, 3000);
+
+  }, [token, dispatch])
+
 
   const VolumeControls = useCallback(async (newVolumePercent) => {
 
@@ -34,13 +104,30 @@ function VolumeOthersControls() {
         }
       );
     } catch (error) {
-      console.error("Error setting volume:", error);
+      if (error.response && error.response.status === 401) {
+        // Handle 401 error here
+        sessionStorage.removeItem('SpotifiToken');
+        alert("Your Session is out!");
+        window.location.reload();
+      } else if (error.response && error.response.status === 404) {
+        // Device status update to reducerCases..
+        dispatch({
+          type: reducerCases.SET_DEVICE_STATUS,
+          deviceStatus: false
+        })
+        // Handle 404 error here
+        setVolumeMuted(false);
+        setVolume(50)
+        alert(`Request Failed: No Active Original Account Found!`);
+      } else {
+        console.error('Error fetching artist info:', error);
+      }
     }
-  }, [token]);
+  }, [token, dispatch]);
 
 
   useEffect(() => {
- 
+
     const increaseVolume = () => {
       if (volume < 100) {
         const newVolumePercent = volume + 10; // Increase by 10, adjust as needed
@@ -82,21 +169,29 @@ function VolumeOthersControls() {
       document.removeEventListener('keydown', handleKeyDown);
     };
   });
- 
+
   const toggleMute = () => {
     setVolumeMuted((prevMuted) => !prevMuted);
     const newVolumePercent = volumeMuted ? 50 : 0;
     VolumeControls(newVolumePercent);
- 
+
   };
 
   return (
     <Container>
+      {deviceStatus ?
+        (<Tooltip text="Device Active">
+          <PiDevicesBold style={{ color: '#1ed760' }} />
+        </Tooltip>
+        ) : (<Tooltip text="Device Dective">
+          <PiDevicesBold />
+        </Tooltip>
+        )}
       <Tooltip text={volumeMuted ? 'Click / Un-mute (m)' : 'Click / Mute (m)'}>
         {volumeMuted ? (
-          <HiMiniSpeakerXMark onClick={()=> toggleMute()}   />
+          <HiMiniSpeakerXMark onClick={() => toggleMute()} />
         ) : (
-          <HiMiniSpeakerWave onClick={()=> toggleMute()}   />
+          <HiMiniSpeakerWave onClick={() => toggleMute()} />
         )
         }
       </Tooltip>

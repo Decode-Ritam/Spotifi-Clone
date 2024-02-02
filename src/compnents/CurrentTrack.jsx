@@ -12,6 +12,8 @@ function CurrentTrack() {
   const [{ token, currentPlaying }, dispatch] = UseStateProvider();
 
   useEffect(() => {
+
+
     const getCurrentTrack = async () => {
 
       const response = await axios.get(

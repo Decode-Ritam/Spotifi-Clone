@@ -21,6 +21,7 @@ function Playlist({ headerBackground }) {
 
                 // Set initial progress
                 bodyBlur.style.display = "none";
+                progress.style.width = "0%";
                 progress.style.backgroundColor = "#01ff01";
                 progress.style.transition = "2s";
                 progress.style.width = "0%";
@@ -41,6 +42,11 @@ function Playlist({ headerBackground }) {
                 if (response.status === 200) {
                     // Update progress to completion
                     progress.style.width = "100%";
+                    // Device status update to reducerCases..
+                    dispatch({
+                        type: reducerCases.SET_DEVICE_STATUS,
+                        deviceStatus: true
+                    })
 
                 } else {
                     // Handle unsuccessful response
@@ -51,13 +57,13 @@ function Playlist({ headerBackground }) {
 
                 // after complete Api response.............
                 setTimeout(() => {
+                    progress.style.transition = "0s";
                     progress.style.backgroundColor = "black";
                     bodyBlur.style.display = "block";
-
-                }, 1000);
-                setTimeout(() => {
                     progress.style.width = "0%";
+
                 }, 2000);
+              
 
                 const selectedPlaylist = {
                     id: response.data.id,
@@ -89,11 +95,19 @@ function Playlist({ headerBackground }) {
                 if (error.response && error.response.status === 401) {
                     // Handle 401 error here
                     sessionStorage.removeItem('SpotifiToken');
-                    console.log("Your Session is out!");
                     alert("Your Session is out!");
                     window.location.reload();
+                } else if (error.response && error.response.status === 404) {
+                    // Device status update to reducerCases..
+                    dispatch({
+                        type: reducerCases.SET_DEVICE_STATUS,
+                        deviceStatus: false
+                    })
+
+                    // Handle 404 error here
+                    alert(`Play Request Failed: No Active Spotify Account Found!`);
                 } else {
-                    console.error("Error fetching initial playlist:", error);
+                    console.error('Error fetching artist info:', error);
                 }
             }
         }
@@ -106,9 +120,10 @@ function Playlist({ headerBackground }) {
             let progress = document.querySelector('.progress');
 
             // Set initial progress
-            progress.style.backgroundColor = "#01ff01";
-            progress.style.transition = "2s";
-            progress.style.width = "0%";
+                 progress.style.width = "0%";
+                progress.style.backgroundColor = "#01ff01";
+                progress.style.transition = "2s";
+                progress.style.width = "0%";
 
             const response = await axios.put(
                 `https://api.spotify.com/v1/me/player/play`,
@@ -130,8 +145,12 @@ function Playlist({ headerBackground }) {
             progress.style.width = "80%";
             if (response.status === 204) {
                 // Update progress to completion
-                console.log('status okay...')
                 progress.style.width = "100%";
+                // Device status update to reducerCases..
+                dispatch({
+                    type: reducerCases.SET_DEVICE_STATUS,
+                    deviceStatus: true
+                })
 
                 const currentPlaying = {
                     id,
@@ -154,11 +173,10 @@ function Playlist({ headerBackground }) {
 
             // after complete Api response.............
             setTimeout(() => {
+                progress.style.transition = "0s";
                 progress.style.backgroundColor = "black";
+                 progress.style.width = "0%";
 
-            }, 1000);
-            setTimeout(() => {
-                progress.style.width = "0%";
             }, 2000);
 
 
@@ -166,11 +184,19 @@ function Playlist({ headerBackground }) {
             if (error.response && error.response.status === 401) {
                 // Handle 401 error here
                 sessionStorage.removeItem('SpotifiToken');
-                console.log("Your Session is out!");
                 alert("Your Session is out!");
                 window.location.reload();
+            } else if (error.response && error.response.status === 404) {
+                // Device status update to reducerCases..
+                dispatch({
+                    type: reducerCases.SET_DEVICE_STATUS,
+                    deviceStatus: false
+                })
+
+                // Handle 404 error here
+                alert(`Play Request Failed: No Active Spotify Account Found!`);
             } else {
-                console.error("Error fetching playlist:", error);
+                console.error('Error fetching artist info:', error);
             }
         }
     };

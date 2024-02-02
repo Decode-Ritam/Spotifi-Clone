@@ -19,21 +19,40 @@ function PlayerControls() {
 
 
     const changeState = async () => {
-        const state = playerState ? "pause" : "play";
-        await axios.put(
-            `https://api.spotify.com/v1/me/player/${state}`,
-            {},
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: "Bearer " + token,
-                },
+
+        try {
+            const state = playerState ? "pause" : "play";
+            await axios.put(
+                `https://api.spotify.com/v1/me/player/${state}`,
+                {},
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: "Bearer " + token,
+                    },
+                }
+            );
+            dispatch({
+                type: reducerCases.SET_PLAYER_STATE,
+                playerState: !playerState,
+            });
+        } catch (error) {
+            if (error.response && error.response.status === 401) {
+                // Handle 401 error here
+                sessionStorage.removeItem('SpotifiToken');
+                alert("Your Session is out!");
+                window.location.reload();
+            } else if (error.response && error.response.status === 404) {
+                // Device status update to reducerCases..
+                dispatch({
+                    type: reducerCases.SET_DEVICE_STATUS,
+                    deviceStatus: false
+                })// Handle 404 error here
+                alert(`Play Request Failed: No Active Spotify Account Found!`);
+            } else {
+                console.error('Error fetching artist info:', error);
             }
-        );
-        dispatch({
-            type: reducerCases.SET_PLAYER_STATE,
-            playerState: !playerState,
-        });
+        }
     };
 
     const changeTrack = async (type) => {
@@ -84,7 +103,6 @@ function PlayerControls() {
                         image: response.data.item.album.images[2].url,
                     };
 
-                    // console.log("response change track",currentPlaying);
                     dispatch({ type: reducerCases.SET_PLAYING, currentPlaying });
 
 
@@ -93,45 +111,101 @@ function PlayerControls() {
                 }
             }, 1000);
         } catch (error) {
-            console.error("Error changing track:", error);
+            if (error.response && error.response.status === 401) {
+                // Handle 401 error here
+                sessionStorage.removeItem('SpotifiToken');
+                alert("Your Session is out!");
+                window.location.reload();
+            } else if (error.response && error.response.status === 404) {
+
+                // Device status update to reducerCases..
+                dispatch({
+                    type: reducerCases.SET_DEVICE_STATUS,
+                    deviceStatus: false
+                })// Handle 404 error here
+                alert(`Play Request Failed: No Active Spotify Account Found!`);
+            } else {
+                console.error('Error fetching artist info:', error);
+            }
         }
     };
 
     const PlaybackShuffle = async (currentState) => {
+        try {
+            setShuffleState((prevState) => !prevState); // Toggle the shuffle state
 
-        setShuffleState((prevState) => !prevState); // Toggle the shuffle state
-
-        await axios.put(
-            ` https://api.spotify.com/v1/me/player/shuffle?state=${currentState}`,
-            {},
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: "Bearer " + token,
-                },
+            await axios.put(
+                ` https://api.spotify.com/v1/me/player/shuffle?state=${currentState}`,
+                {},
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: "Bearer " + token,
+                    },
+                }
+            );
+        } catch (error) {
+            if (error.response && error.response.status === 401) {
+                // Handle 401 error here
+                sessionStorage.removeItem('SpotifiToken');
+                alert("Your Session is out!");
+                window.location.reload();
+            } else if (error.response && error.response.status === 404) {
+                // Device status update to reducerCases..
+                dispatch({
+                    type: reducerCases.SET_DEVICE_STATUS,
+                    deviceStatus: false
+                })
+                // Handle 404 error here
+                setShuffleState(false)
+                alert(`Play Request Failed: No Active Spotify Account Found!`);
+            } else {
+                console.error('Error fetching artist info:', error);
             }
-        );
+        }
+
     }
 
     const setRepeatMode = async (state) => {
-        if (state === "track") {
-            setRepeatState(true)
-        }
-        if (state === "off") {
-            setRepeatState(false)
-        }
-        // setRepeatState((prevState) => !prevState); // Toggle the shuffle state
 
-        await axios.put(
-            `https://api.spotify.com/v1/me/player/repeat?state=${state}`,
-            {},
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: "Bearer " + token,
-                },
+        try {
+            if (state === "track") {
+                setRepeatState(true)
             }
-        )
+            if (state === "off") {
+                setRepeatState(false)
+            }
+
+            await axios.put(
+                `https://api.spotify.com/v1/me/player/repeat?state=${state}`,
+                {},
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: "Bearer " + token,
+                    },
+                }
+            )
+        } catch (error) {
+            if (error.response && error.response.status === 401) {
+                // Handle 401 error here
+                sessionStorage.removeItem('SpotifiToken');
+                alert("Your Session is out!");
+                window.location.reload();
+            } else if (error.response && error.response.status === 404) {
+                // Device status update to reducerCases..
+                dispatch({
+                    type: reducerCases.SET_DEVICE_STATUS,
+                    deviceStatus: false
+                })
+                // Handle 404 error here
+                setRepeatState(false)
+                alert(`Play Request Failed: No Active Spotify Account Found!`);
+            } else {
+                console.error('Error fetching artist info:', error);
+            }
+        }
+
     }
 
     useEffect(() => {
@@ -179,14 +253,14 @@ function PlayerControls() {
         };
     }, [changeState, PlaybackShuffle, ShuffleState, changeTrack]);
 
-     return (
+    return (
         <Container>
             <div className="playercontroll">
                 <div className="shuffle" onClick={() => PlaybackShuffle(!ShuffleState)} >
                     <Tooltip text="Shuffle Toggle (s)" >
                         {ShuffleState ?
                             <FaShuffle style={{ color: '#1ed760' }} />
-                            :<FaShuffle /> 
+                            : <FaShuffle />
                         }
                     </Tooltip>
                 </div>
@@ -222,7 +296,7 @@ function PlayerControls() {
                     }
                 </Tooltip>
             </div>
-            <div className="playerProgressbar">
+            <div className="playerProgressbar" style={{ display: 'none' }}>
                 <div className="songProgresstime"> </div>
                 <div className="progressbar"></div>
                 <div className="totalTime"> 0:00</div>
