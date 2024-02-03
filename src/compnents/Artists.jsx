@@ -68,13 +68,7 @@ function Artists({ headerBackground }) {
                 if (artistData.status === 200) {
                     // Update progress to completion
                     progress.style.width = "100%";
-
-                    // Device status update to reducerCases..
-                    dispatch({
-                        type: reducerCases.SET_DEVICE_STATUS,
-                        deviceStatus: true
-                    })
-
+ 
                 } else {
                     // Handle unsuccessful response
                     progress.style.backgroundColor = "transparent";
@@ -118,12 +112,7 @@ function Artists({ headerBackground }) {
                     alert("Your Session is out!");
                     window.location.reload();
                 } else if (error.response && error.response.status === 404) {
-                    // Device status update to reducerCases..
-                    dispatch({
-                        type: reducerCases.SET_DEVICE_STATUS,
-                        deviceStatus: false
-                    })
-
+                   
                     // Handle 404 error here
                     alert(`Play Request Failed: No Active Spotify Account Found!`);
                 } else {

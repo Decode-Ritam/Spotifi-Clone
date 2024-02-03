@@ -36,7 +36,7 @@ function VolumeOthersControls() {
         }
 
         if (response.data.devices[0]) {
-          const deviceData = response.data.devices[0]
+           const deviceData = response.data.devices[0]
           const ActiveDevice = {
             deviceId: deviceData.id,
             deviceActive: deviceData.is_active,
@@ -176,8 +176,8 @@ function VolumeOthersControls() {
     VolumeControls(newVolumePercent);
 
   };
-
-  return (
+  
+   return (
     <Container>
       {deviceStatus ?
         (<Tooltip text="Device Active">
