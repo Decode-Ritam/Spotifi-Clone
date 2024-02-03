@@ -1,7 +1,7 @@
 # Spotify Clone
 Author: Ritam Sarkar
 
- Check out the live view of the Spotify Clone project [here](https://ritam-spotifi.netlify.app).
+ Check out the live view of the Spotify Clone project [https://ritam-spotifi.netlify.app](https://ritam-spotifi.netlify.app).
  
 Welcome to Spotify Clone, a web application that replicates the experience of the popular music streaming service Spotify. This project is built with React and incorporates Spotify token authentication for seamless remote access to your Spotify account data.
 
